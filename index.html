@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Absensi Karyawan</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">ABSENSI KARYAWAN</p>
+        <h1>Flowchart Absensi Kehadiran Digital Karyawan</h1>
+        <p class="subtitle">Sistem absensi sederhana dengan identifikasi user, pengecekan jam masuk, dan notifikasi.</p>
+      </div>
+      <div class="hero-note">
+        <strong>Jam masuk normal:</strong> 08:00 WIB
+      </div>
+    </header>
+
+    <section class="card steps" id="step-start">
+      <div class="step-number">1</div>
+      <div>
+        <h2>Mulai Absensi</h2>
+        <p>Klik tombol berikut untuk memulai proses absensi.</p>
+        <button id="startBtn" class="primary-btn">Mulai Absensi</button>
+      </div>
+    </section>
+
+    <section class="card steps hidden" id="step-identify">
+      <div class="step-number">2</div>
+      <div>
+        <h2>Identifikasi User</h2>
+        <p>Pilih cara identifikasi: pilih karyawan atau scan QR/ID.</p>
+        <div class="form-row">
+          <label for="employeeSelect">Pilih Karyawan</label>
+          <select id="employeeSelect"></select>
+        </div>
+        <div class="form-row">
+          <label for="scanInput">QR / ID</label>
+          <input id="scanInput" type="text" placeholder="Masukkan ID / Scan QR" />
+        </div>
+        <button id="identifyBtn" class="secondary-btn">Identifikasi</button>
+      </div>
+    </section>
+
+    <section class="card status-card hidden" id="result-card">
+      <div class="status-title" id="resultTitle"></div>
+      <p id="resultMessage"></p>
+      <div class="status-info">
+        <div><strong>ID:</strong> <span id="userId"></span></div>
+        <div><strong>Nama:</strong> <span id="userName"></span></div>
+        <div><strong>Waktu Absensi:</strong> <span id="attendanceTime"></span></div>
+        <div><strong>Status:</strong> <span id="attendanceStatus"></span></div>
+      </div>
+      <button id="saveBtn" class="primary-btn">Simpan Data Absensi</button>
+    </section>
+
+    <section class="card hidden" id="invalid-card">
+      <div class="status-title invalid">Data Tidak Valid</div>
+      <p>User tidak dikenal atau belum terdaftar. Silakan coba lagi.</p>
+      <button id="retryBtn" class="secondary-btn">Coba Lagi</button>
+    </section>
+
+    <section class="card hidden" id="notification-card">
+      <div class="status-title success">Notifikasi Berhasil</div>
+      <p id="notificationText">Absensi berhasil disimpan. Terima kasih.</p>
+      <button id="doneBtn" class="primary-btn">Selesai</button>
+    </section>
+
+    <section class="card attendance-log">
+      <h2>Riwayat Absensi</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>ID</th>
+              <th>Nama</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="logTable"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
