@@ -8,20 +8,25 @@ const employees = [
 const startBtn = document.getElementById('startBtn');
 const identifyBtn = document.getElementById('identifyBtn');
 const retryBtn = document.getElementById('retryBtn');
+const invalidRetryBtn = document.getElementById('invalidRetryBtn');
 const saveBtn = document.getElementById('saveBtn');
 const doneBtn = document.getElementById('doneBtn');
+const clearHistoryBtn = document.getElementById('clearHistoryBtn');
 const employeeSelect = document.getElementById('employeeSelect');
 const scanInput = document.getElementById('scanInput');
 const resultCard = document.getElementById('result-card');
 const invalidCard = document.getElementById('invalid-card');
 const notificationCard = document.getElementById('notification-card');
+const stepStart = document.getElementById('step-start');
 const stepIdentify = document.getElementById('step-identify');
 const resultTitle = document.getElementById('resultTitle');
 const resultMessage = document.getElementById('resultMessage');
 const userId = document.getElementById('userId');
 const userName = document.getElementById('userName');
+const attendanceDate = document.getElementById('attendanceDate');
 const attendanceTime = document.getElementById('attendanceTime');
 const attendanceStatus = document.getElementById('attendanceStatus');
+const invalidMessage = document.getElementById('invalidMessage');
 const notificationText = document.getElementById('notificationText');
 const logTable = document.getElementById('logTable');
 
@@ -54,16 +59,17 @@ function renderLog() {
   const log = getAttendanceLog();
   logTable.innerHTML = log.map(entry => `
       <tr>
+        <td>${entry.date}</td>
         <td>${entry.time}</td>
         <td>${entry.id}</td>
         <td>${entry.name}</td>
         <td>${entry.status}</td>
       </tr>
-    `).join('') || '<tr><td colspan="4" style="text-align:center; padding: 18px 0; color: #6c7682;">Belum ada riwayat absensi.</td></tr>';
+    `).join('') || '<tr><td colspan="5" style="text-align:center; padding: 18px 0; color: #6c7682;">Belum ada riwayat absensi.</td></tr>';
 }
 
 function showSection(section) {
-  [stepIdentify, resultCard, invalidCard, notificationCard].forEach(el => {
+  [stepStart, stepIdentify, resultCard, invalidCard, notificationCard].forEach(el => {
     if (el === section) {
       el.classList.remove('hidden');
     } else {
@@ -73,13 +79,11 @@ function showSection(section) {
 }
 
 function showStart() {
-  showSection(stepIdentify);
-  resultCard.classList.add('hidden');
-  invalidCard.classList.add('hidden');
-  notificationCard.classList.add('hidden');
+  showSection(stepStart);
 }
 
-function showInvalid() {
+function showInvalid(message) {
+  invalidMessage.textContent = message || 'User tidak dikenal atau belum terdaftar. Silakan coba lagi.';
   showSection(invalidCard);
 }
 
@@ -104,7 +108,7 @@ function resetInputs() {
 function findEmployee(query) {
   if (!query) return null;
   const normalized = query.trim().toUpperCase();
-  return employees.find(emp => emp.id === normalized || emp.name.toUpperCase() === normalized);
+  return employees.find(emp => emp.id === normalized || emp.name.toUpperCase() === normalized || emp.id === normalized.replace(/^QR:/, ''));
 }
 
 function computeStatus(timeString) {
@@ -115,17 +119,28 @@ function computeStatus(timeString) {
   return 'Terlambat';
 }
 
+function getTodayDate() {
+  const now = new Date();
+  return now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+}
+
 function handleStart() {
+  resetInputs();
   showStart();
 }
 
 function handleIdentify() {
   const selectedValue = employeeSelect.value;
   const scanValue = scanInput.value.trim();
-  const employee = selectedValue ? findEmployee(selectedValue) : findEmployee(scanValue);
 
+  if (!selectedValue && !scanValue) {
+    showInvalid('Silakan pilih karyawan atau masukkan ID/QR.');
+    return;
+  }
+
+  const employee = selectedValue ? findEmployee(selectedValue) : findEmployee(scanValue);
   if (!employee) {
-    showInvalid();
+    showInvalid('User tidak dikenali dalam daftar. Coba lagi dengan ID/QR yang valid.');
     return;
   }
 
@@ -137,16 +152,18 @@ function handleIdentify() {
   currentAttendance = {
     id: employee.id,
     name: employee.name,
+    date: getTodayDate(),
     time,
     status
   };
 
   resultTitle.textContent = status === 'Hadir Tepat Waktu' ? 'Status: Hadir Tepat Waktu' : 'Status: Terlambat';
   resultMessage.textContent = status === 'Hadir Tepat Waktu'
-    ? 'Jam masuk kurang dari atau sama dengan 08:00 WIB.'
-    : 'Jam masuk lebih dari 08:00 WIB. Silakan simpan catatan terlambat.';
+    ? 'Jam masuk tidak terlambat. Silakan lanjutkan menyimpan data.'
+    : 'Anda datang terlambat. Silakan simpan data absensi.';
   userId.textContent = employee.id;
   userName.textContent = employee.name;
+  attendanceDate.textContent = currentAttendance.date;
   attendanceTime.textContent = time;
   attendanceStatus.textContent = status;
   showResult();
@@ -155,6 +172,12 @@ function handleIdentify() {
 function handleSave() {
   if (!currentAttendance) return;
   const log = getAttendanceLog();
+  const exists = log.some(entry => entry.id === currentAttendance.id && entry.date === currentAttendance.date);
+  if (exists) {
+    showNotification(`Absensi untuk ${currentAttendance.name} sudah tercatat hari ini.`);
+    return;
+  }
+
   log.unshift(currentAttendance);
   setAttendanceLog(log);
   renderLog();
@@ -166,6 +189,12 @@ function handleRetry() {
   showStart();
 }
 
+function handleClearHistory() {
+  if (!confirm('Hapus semua riwayat absensi?')) return;
+  localStorage.removeItem('attendanceLog');
+  renderLog();
+}
+
 function handleDone() {
   resetInputs();
   startBtn.scrollIntoView({ behavior: 'smooth' });
@@ -175,8 +204,9 @@ function handleDone() {
 startBtn.addEventListener('click', handleStart);
 identifyBtn.addEventListener('click', handleIdentify);
 retryBtn.addEventListener('click', handleRetry);
+invalidRetryBtn.addEventListener('click', handleRetry);
 saveBtn.addEventListener('click', handleSave);
 doneBtn.addEventListener('click', handleDone);
-
+clearHistoryBtn.addEventListener('click', handleClearHistory);
 loadEmployees();
 renderLog();

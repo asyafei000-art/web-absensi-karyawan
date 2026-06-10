@@ -100,6 +100,22 @@ label {
   color: #425062;
 }
 
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #0a5f7b;
+  box-shadow: 0 0 0 3px rgba(10, 95, 123, 0.12);
+}
+
+.status-info {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  background: #f4fbff;
+  border-radius: 18px;
+}
+
 input,
 select {
   width: 100%;
@@ -117,6 +133,12 @@ button {
   padding: 14px 20px;
   font-size: 1rem;
   cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(10, 95, 123, 0.14);
 }
 
 .primary-btn {
@@ -127,6 +149,75 @@ button {
 .secondary-btn {
   background: #eff6ff;
   color: #0a5f7b;
+}
+
+.buttons-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.note-text {
+  margin: 0 0 18px;
+  color: #556779;
+  font-size: 0.95rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.badge.success {
+  background: #d8f6e8;
+  color: #0d713d;
+}
+
+.badge.warning {
+  background: #fff4d1;
+  color: #9c6500;
+}
+
+.badge.error {
+  background: #fde8e8;
+  color: #a20a0a;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.attendance-log h2 {
+  margin: 0;
+}
+
+tbody tr:nth-child(odd) {
+  background: #f8fbff;
+}
+
+tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f0f4f8;
+  font-size: 0.95rem;
+}
+
+.status-info {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  background: #f4fbff;
+  border-radius: 18px;
 }
 
 .status-card {

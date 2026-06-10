@@ -32,16 +32,20 @@
       <div class="step-number">2</div>
       <div>
         <h2>Identifikasi User</h2>
-        <p>Pilih cara identifikasi: pilih karyawan atau scan QR/ID.</p>
+        <p>Pilih karyawan dari daftar atau masukkan ID/QR untuk verifikasi.</p>
         <div class="form-row">
           <label for="employeeSelect">Pilih Karyawan</label>
           <select id="employeeSelect"></select>
         </div>
         <div class="form-row">
           <label for="scanInput">QR / ID</label>
-          <input id="scanInput" type="text" placeholder="Masukkan ID / Scan QR" />
+          <input id="scanInput" type="text" placeholder="Masukkan ID / Scan QR" autocomplete="off" />
         </div>
-        <button id="identifyBtn" class="secondary-btn">Identifikasi</button>
+        <p class="note-text">Catatan: gunakan salah satu metode. Jika memilih karyawan, bidang QR/ID akan diabaikan.</p>
+        <div class="buttons-row">
+          <button id="identifyBtn" class="primary-btn">Identifikasi</button>
+          <button id="retryBtn" class="secondary-btn">Bersihkan</button>
+        </div>
       </div>
     </section>
 
@@ -49,9 +53,10 @@
       <div class="status-title" id="resultTitle"></div>
       <p id="resultMessage"></p>
       <div class="status-info">
+        <div><strong>Tanggal:</strong> <span id="attendanceDate"></span></div>
+        <div><strong>Waktu:</strong> <span id="attendanceTime"></span></div>
         <div><strong>ID:</strong> <span id="userId"></span></div>
         <div><strong>Nama:</strong> <span id="userName"></span></div>
-        <div><strong>Waktu Absensi:</strong> <span id="attendanceTime"></span></div>
         <div><strong>Status:</strong> <span id="attendanceStatus"></span></div>
       </div>
       <button id="saveBtn" class="primary-btn">Simpan Data Absensi</button>
@@ -59,8 +64,8 @@
 
     <section class="card hidden" id="invalid-card">
       <div class="status-title invalid">Data Tidak Valid</div>
-      <p>User tidak dikenal atau belum terdaftar. Silakan coba lagi.</p>
-      <button id="retryBtn" class="secondary-btn">Coba Lagi</button>
+      <p id="invalidMessage">User tidak dikenal atau belum terdaftar. Silakan coba lagi.</p>
+      <button id="invalidRetryBtn" class="secondary-btn">Coba Lagi</button>
     </section>
 
     <section class="card hidden" id="notification-card">
@@ -70,11 +75,18 @@
     </section>
 
     <section class="card attendance-log">
-      <h2>Riwayat Absensi</h2>
+      <div class="log-header">
+        <div>
+          <h2>Riwayat Absensi</h2>
+          <p class="note-text">Data tersimpan di penyimpanan lokal browser.</p>
+        </div>
+        <button id="clearHistoryBtn" class="secondary-btn">Hapus Riwayat</button>
+      </div>
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
+              <th>Tanggal</th>
               <th>Waktu</th>
               <th>ID</th>
               <th>Nama</th>
