@@ -41,6 +41,18 @@
           <label for="scanInput">QR / ID</label>
           <input id="scanInput" type="text" placeholder="Masukkan ID / Scan QR" autocomplete="off" />
         </div>
+        <div class="form-row camera-row">
+          <label>Kamera</label>
+          <div class="camera-actions">
+            <button id="cameraToggleBtn" type="button" class="secondary-btn">Buka Kamera</button>
+            <button id="snapshotBtn" type="button" class="secondary-btn hidden">Ambil Foto</button>
+          </div>
+          <div class="camera-panel hidden" id="cameraPanel">
+            <video id="cameraVideo" autoplay playsinline muted></video>
+            <canvas id="cameraCanvas" class="hidden"></canvas>
+            <p class="camera-note" id="cameraStatus">Arahkan QR code ke kamera untuk memindai.</p>
+          </div>
+        </div>
         <p class="note-text">Catatan: gunakan salah satu metode. Jika memilih karyawan, bidang QR/ID akan diabaikan.</p>
         <div class="buttons-row">
           <button id="identifyBtn" class="primary-btn">Identifikasi</button>

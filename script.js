@@ -12,6 +12,11 @@ const invalidRetryBtn = document.getElementById('invalidRetryBtn');
 const saveBtn = document.getElementById('saveBtn');
 const doneBtn = document.getElementById('doneBtn');
 const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+const cameraToggleBtn = document.getElementById('cameraToggleBtn');
+const snapshotBtn = document.getElementById('snapshotBtn');
+const cameraPanel = document.getElementById('cameraPanel');
+const cameraVideo = document.getElementById('cameraVideo');
+const cameraCanvas = document.getElementById('cameraCanvas');
 const employeeSelect = document.getElementById('employeeSelect');
 const scanInput = document.getElementById('scanInput');
 const resultCard = document.getElementById('result-card');
@@ -32,6 +37,8 @@ const logTable = document.getElementById('logTable');
 
 let selectedEmployee = null;
 let currentAttendance = null;
+let cameraStream = null;
+let cameraScanner = null;
 
 function formatTime(date) {
   return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -124,9 +131,86 @@ function getTodayDate() {
   return now.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 }
 
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showCameraStatus('Kamera tidak didukung oleh browser ini.', true);
+    return;
+  }
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    cameraVideo.srcObject = cameraStream;
+    cameraPanel.classList.remove('hidden');
+    snapshotBtn.classList.remove('hidden');
+    cameraToggleBtn.textContent = 'Matikan Kamera';
+    showCameraStatus('Arahkan QR code ke kamera.');
+
+    if ('BarcodeDetector' in window) {
+      cameraScanner = setInterval(scanQRCode, 800);
+    } else {
+      showCameraStatus('Browser tidak mendukung deteksi QR otomatis. Gunakan input manual.', true);
+    }
+  } catch (error) {
+    showCameraStatus('Gagal mengakses kamera. Periksa izin halaman.', true);
+    console.error(error);
+  }
+}
+
+function stopCamera() {
+  if (cameraScanner) {
+    clearInterval(cameraScanner);
+    cameraScanner = null;
+  }
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  cameraVideo.srcObject = null;
+  cameraPanel.classList.add('hidden');
+  snapshotBtn.classList.add('hidden');
+  cameraToggleBtn.textContent = 'Buka Kamera';
+}
+
+function showCameraStatus(message, isError = false) {
+  const cameraStatus = document.getElementById('cameraStatus');
+  cameraStatus.textContent = message;
+  cameraStatus.classList.toggle('error', isError);
+}
+
+async function scanQRCode() {
+  if (!cameraVideo || cameraVideo.readyState < 2) return;
+
+  cameraCanvas.width = cameraVideo.videoWidth;
+  cameraCanvas.height = cameraVideo.videoHeight;
+  const context = cameraCanvas.getContext('2d');
+  context.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+
+  try {
+    const detector = new BarcodeDetector({ formats: ['qr_code'] });
+    const results = await detector.detect(cameraCanvas);
+    if (results && results.length > 0) {
+      scanInput.value = results[0].rawValue.trim();
+      showCameraStatus(`QR terbaca: ${results[0].rawValue}`);
+      stopCamera();
+    }
+  } catch (error) {
+    console.warn('Barcode detection failed', error);
+  }
+}
+
+function capturePhoto() {
+  if (!cameraVideo || cameraVideo.readyState < 2) return;
+
+  cameraCanvas.width = cameraVideo.videoWidth;
+  cameraCanvas.height = cameraVideo.videoHeight;
+  const context = cameraCanvas.getContext('2d');
+  context.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+  showCameraStatus('Foto berhasil diambil. Anda dapat menggunakan input atau scan ulang.');
+}
+
 function handleStart() {
   resetInputs();
-  showStart();
+  showSection(stepIdentify);
 }
 
 function handleIdentify() {
@@ -200,6 +284,15 @@ function handleDone() {
   startBtn.scrollIntoView({ behavior: 'smooth' });
   showStart();
 }
+
+cameraToggleBtn.addEventListener('click', () => {
+  if (cameraStream) {
+    stopCamera();
+  } else {
+    startCamera();
+  }
+});
+snapshotBtn.addEventListener('click', capturePhoto);
 
 startBtn.addEventListener('click', handleStart);
 identifyBtn.addEventListener('click', handleIdentify);
